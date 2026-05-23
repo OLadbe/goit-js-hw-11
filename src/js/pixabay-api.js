@@ -12,7 +12,7 @@ const options = {
 export function getImagesByQuery(query) { 
   const params = { ...options };
   params.q = query;
-  return axios.get('https://pixabay.com/api/', { params: options })
+  return axios.get('https://pixabay.com/api/', { params })
     .then(response => response.data);
 }
 
