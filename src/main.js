@@ -1,27 +1,56 @@
 import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.min.css";
-import { getImagesByQuery } from "./js/pixabay-api";
-import { createGallery, clearGallery, showLoader, hideLoader } from "./js/render-functions";
 
+import { getImagesByQuery } from './js/pixabay-api.js';
+import { createGallery, clearGallery, showLoader, hideLoader } from './js/render-functions.js';
 
-const userInput = document.querySelector('input[name="search-text"]');
 const userForm = document.querySelector(".form");
+const userInput = document.querySelector('input[name="search-text"]');
+hideLoader();
 
 userForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const search = userInput.value.trim();
-    showLoader();
-    getImagesByQuery(search)
-        .then(data => {
-            if (data.hits.length === 0) {
-                return iziToast.error({message: "Sorry, there are no images matching your search query. Please try again!", position: 'center'});
-            }
-            clearGallery();
-            createGallery(data.hits);
-        })
-        .catch(error => console.log(error))
-        .finally(() => hideLoader());
-    userForm.reset();
-    
-    
+  event.preventDefault();
+  
+  const searchQuery = userInput.value.trim();
+
+  if (searchQuery === "") {
+    iziToast.error({
+      message: "Please enter a search query!",
+      position: 'topRight'
+    });
+    return;
+  }
+
+  clearGallery();
+
+  showLoader();
+
+  getImagesByQuery(searchQuery)
+    .then(data => {
+
+      hideLoader();
+
+
+      if (data.hits.length === 0) {
+        iziToast.error({
+          message: "Sorry, there are no images matching your search query. Please try again!",
+          position: 'topRight'
+        });
+        return;
+      }
+
+
+      createGallery(data.hits);
+      userForm.reset()
+    })
+    .catch(error => {
+
+      hideLoader();
+      
+      iziToast.error({
+        message: "Something went wrong. Please try again later!",
+        position: 'topRight'
+      });
+      console.error(error);
+    });
 });
